@@ -9,9 +9,14 @@ $app = new \Slim\App([
         'displayErrorDetails'=>true
     ]
 ]);
- 
+
+/**
+ * endpoint: createuser
+ * paramters: email, pasfsword, name, school
+ * method: POST
+ */
 $app->post('/createuser', function(Request $request, Response $response){
-    if(!haveEmptyParameters(array('email', 'password', 'name', 'school'), $request, $response)){
+    if(!hasEmptyParams(array('email', 'password', 'name', 'school'), $request, $response)){
         $request_data = $request->getParsedBody(); 
         $email = $request_data['email'];
         $password = $request_data['password'];
@@ -19,7 +24,7 @@ $app->post('/createuser', function(Request $request, Response $response){
         $school = $request_data['school']; 
 
         $hash_password = password_hash($password, PASSWORD_DEFAULT);
-        
+
         $db = new DbOperations; 
         $result = $db->createUser($email, $hash_password, $name, $school);
         
@@ -53,8 +58,14 @@ $app->post('/createuser', function(Request $request, Response $response){
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);    
 });
+
+/**
+ * endpoint: userlogin
+ * Paremters: email, password
+ * method: POST
+ */
 $app->post('/userlogin', function(Request $request, Response $response){
-    if(!haveEmptyParameters(array('email', 'password'), $request, $response)){
+    if(!hasEmptyParams(array('email', 'password'), $request, $response)){
         $request_data = $request->getParsedBody(); 
         $email = $request_data['email'];
         $password = $request_data['password'];
@@ -94,7 +105,12 @@ $app->post('/userlogin', function(Request $request, Response $response){
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);    
 });
- 
+
+/**
+ * endpoint: allusers
+ * parameters: none
+ * method: GET
+ */
 $app->get('/allusers', function(Request $request, Response $response){
     $db = new DbOperations; 
     $users = $db->getAllUsers();
@@ -107,9 +123,14 @@ $app->get('/allusers', function(Request $request, Response $response){
     ->withStatus(200);  
 });
  
+/**
+ * endpoint: updateuser/{id}
+ * parameters: email, name, school
+ * method: PUT
+ */
 $app->put('/updateuser/{id}', function(Request $request, Response $response, array $args){
     $id = $args['id'];
-    if(!haveEmptyParameters(array('email','name','school'), $request, $response)){
+    if(!hasEmptyParams(array('email','name','school'), $request, $response)){
         $request_data = $request->getParsedBody(); 
         $email = $request_data['email'];
         $name = $request_data['name'];
@@ -145,8 +166,14 @@ $app->put('/updateuser/{id}', function(Request $request, Response $response, arr
     ->withHeader('Content-type', 'application/json')
     ->withStatus(200);  
 });
+
+/**
+ * endpoint: updatepassword
+ * parameters: currentpassword, newpassword, email
+ * method: PUT
+ */
 $app->put('/updatepassword', function(Request $request, Response $response){
-    if(!haveEmptyParameters(array('currentpassword', 'newpassword', 'email'), $request, $response)){
+    if(!hasEmptyParams(array('currentpassword', 'newpassword', 'email'), $request, $response)){
         
         $request_data = $request->getParsedBody(); 
         $currentpassword = $request_data['currentpassword'];
@@ -199,7 +226,7 @@ $app->delete('/deleteuser/{id}', function(Request $request, Response $response, 
     ->withStatus(200);
 });
  
-function haveEmptyParameters($required_params, $request, $response){
+function hasEmptyParams($required_params, $request, $response){
     $error = false; 
     $error_params = '';
     $request_params = $request->getParsedBody(); 
