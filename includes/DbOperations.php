@@ -20,10 +20,10 @@
         /*  The Create Operation 
             The function will insert a new user in our database
         */
-        public function createUser($email, $password, $name, $school){
-           if(!$this->isEmailExist($email)){
-                $stmt = $this->con->prepare("INSERT INTO users (email, password, name, school) VALUES (?, ?, ?, ?)");
-                $stmt->bind_param("ssss", $email, $password, $name, $school);
+        public function createUser($username, $password, $f_name, $l_name){
+           if(!$this->doesUserNameExist($username)){
+                $stmt = $this->con->prepare("INSERT INTO user (user_name, password, first_name, last_name) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("ssss", $username, $password, $f_name, $l_name);
                 if($stmt->execute()){
                     return USER_CREATED; 
                 }else{
@@ -151,14 +151,13 @@
         }
 
         /*
-            The Read Operation
-            The function is checking if the user exist in the database or not
+            The function is checking if the user exists in the database (or not)
         */
-        private function isEmailExist($email){
-            $stmt = $this->con->prepare("SELECT id FROM users WHERE email = ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute(); 
-            $stmt->store_result(); 
-            return $stmt->num_rows > 0;  
+        private function doesUserNameExist($user_name){
+            $stmt = $this->con->prepare("SELECT user_id FROM user WHERE user_name = ?");
+            $stmt->bind_param("s", $user_name);
+            $stmt->execute();
+            $stmt->store_result();
+            return $stmt->num_rows > 0;
         }
     }
