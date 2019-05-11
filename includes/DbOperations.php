@@ -193,6 +193,33 @@
             return $stmt->num_rows > 0;
         }
 
+        public function insertSleepData($data_id, $total_sleep_time, $deep_sleep_time, $light_sleep_time, $awake_time) {
+            if ($this->doesDataExist($data_id)) {
+                if (!$this->doesSleepDataExist($data_id)) {
+                    $stmt = $this->con->prepare('INSERT INTO `sleep_data`(`data_id`, `total_sleep_time`, `deep_sleep_time`, `light_sleep_time`, `awake_time`) 
+                                                 VALUES (?, ?, ?, ?, ?)');
+                    $stmt->bind_param("iiiii", $data_id, $total_sleep_time, $deep_sleep_time, $light_sleep_time, $awake_time);
+                    if ($stmt->execute()) {
+                        return DATA_CREATED;
+                    } else {
+                        return DATA_ERROR;
+                    }
+                } else {
+                    return DATA_EXISTS;
+                }
+            }
+            return DATA_NOT_FOUND;
+        }
+
+        private function doesSleepDataExist($data_id) {
+            $stmt = $this->con->prepare('SELECT * FROM sleep_data where data_id = ?');
+            $stmt->bind_param("i", $data_id);
+            $stmt->execute();
+            $stmt->store_result();
+            return $stmt->num_rows > 0;
+        }
+
+
         /*
             The Read Operation
             Function is returning all the users from database

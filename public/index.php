@@ -402,6 +402,63 @@ $app->post('/insertstressdata', function(Request $request, Response $response){
  *  light_sleep_time, awake_time, 
  * method: POST
  */
+$app->post('/insertsleepdata', function(Request $request, Response $response){
+    if (!hasEmptyParams(array('data_id', 'total_sleep_time', 'deep_sleep_time', 'light_sleep_time', 'awake_time'), $request, $response)) {
+        $request_data = $request->getParsedBody();
+
+        $data_id = $request_data['data_id'];
+        $total_sleep_time = $request_data['total_sleep_time'];
+        $deep_sleep_time = $request_data['deep_sleep_time'];
+        $light_sleep_time=  $request_data['light_sleep_time'];
+        $awake_time = $request_data['awake_time'];
+    
+        $db = new DbOperations; 
+        $result = $db->insertSleepData($data_id, $total_sleep_time, $deep_sleep_time, $light_sleep_time, $awake_time);
+        
+        $response_data = array();
+        $response_data['data_id'] = $data_id;
+        if ($result == DATA_CREATED) {
+            $response_data['error'] = false;
+            $response_data['message'] = "Sleep data added sucessfully";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
+        } else if ($result == DATA_ERROR) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Error adding sleep data";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        } else if ($result == DATA_NOT_FOUND) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Parent Data not found";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        } else if ($result == DATA_EXISTS) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Cannot submit more then one sleep data instance for one user_data instance";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
 
 /**
  * endpoint: insertheartratedata
