@@ -80,9 +80,9 @@ $app->post('/userlogin', function(Request $request, Response $response) {
         
         $db = new DbOperations; 
         $result = $db->userLogin($user_name, $password);
-        if($result == USER_AUTHENTICATED){
 
-            $response_data = array();
+        $response_data = array();
+        if($result == USER_AUTHENTICATED){
             $response_data['error']=false; 
             $response_data['message'] = 'Login Successful';
             $response_data['user']=$user_name; 
@@ -93,7 +93,6 @@ $app->post('/userlogin', function(Request $request, Response $response) {
                 ->withStatus(200);   
 
         } else if ($result == USER_NOT_FOUND) {
-            $response_data = array();
             $response_data['error']=true; 
             $response_data['message'] = 'User does not exist';
             $response->write(json_encode($response_data));
@@ -103,7 +102,6 @@ $app->post('/userlogin', function(Request $request, Response $response) {
                 ->withStatus(200);    
 
         } else if ($result == USER_PASSWORD_DO_NOT_MATCH) {
-            $response_data = array();
             $response_data['error']=true; 
             $response_data['message'] = 'Invalid credentials';
             $response->write(json_encode($response_data));
@@ -123,6 +121,57 @@ $app->post('/userlogin', function(Request $request, Response $response) {
  * Parameters: user_id, first_name (optional), last_name (optional), occupation
  * method: POST
  */
+$app->post('/insertparent', function(Request $request, Response $response){
+    if (!hasEmptyParams(array('user_name', 'occupation'), $request, $response)) {
+        $request_data = $request->getParsedBody();
+
+        $user_name = $request_data['user_name'];
+        $first_name = array_key_exists("first_name", $request_data) ? $request_data['first_name'] : NULL;
+        $last_name = array_key_exists("last_name", $request_data) ? $request_data['last_name'] : NULL;
+        $occupation = $request_data['occupation'];
+
+        $db = new DbOperations; 
+        $result = $db->insertParent($user_name, $first_name, $last_name, $occupation);
+
+        $response_data = array();
+        if ($result == PARENT_CREATED) {
+            $response_data['error'] = false;
+            $response_data['message'] = 'Parent created successfully';
+            $response_data['user_name'] = $user_name;
+            $response_data['occupation'] = $occupation;
+            $response_data['first_name'] = $first_name;
+            $response_data['last_name'] = $last_name;
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200); 
+        } else if ($result == PARENT_FAILURE) {
+            $response_data['error'] =  true;
+            $response_data['message'] = 'Error creating parent';
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422); 
+        } else if ($result == USER_NOT_FOUND) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Username not found";
+            $response_data['user_name'] = $user_name;
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        }
+    }
+    return $response
+    ->withHeader('Content-type', 'application/json')
+    ->withStatus(422); 
+});
 
 /**
  * endpoint: insertshift

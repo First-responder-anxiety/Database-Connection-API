@@ -13,3 +13,5 @@
     define('PASSWORD_CHANGED', 301);
     define('PASSWORD_DO_NOT_MATCH', 302);
     define('PASSWORD_NOT_CHANGED', 303);
+    define('PARENT_CREATED', 401);
+    define('PARENT_FAILURE', 402);

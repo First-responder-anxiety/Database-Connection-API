@@ -64,6 +64,36 @@
             return $password; 
         }
 
+        public function insertParent($user_name, $f_name, $l_name, $occupation) {
+            if ($this->doesUserNameExist($user_name)) {
+                $user_id = $this->getUserIdByUserName($user_name);
+
+                $stmt = $this->con->prepare("INSERT INTO `parent`(`first_name`, `last_name`, `occupation`, `user_id`) 
+                                             VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("sssi", $f_name, $l_name, $occupation, $user_id);
+                if($stmt->execute()) {
+                    return PARENT_CREATED;
+                } else {
+                    return PARENT_FAILURE;
+                }
+
+            }
+
+            return USER_NOT_FOUND;
+        }
+
+        /**
+         * Assumption: The username exists
+         */
+        private function getUserIdByUserName($user_name) {
+            $stmt = $this->con->prepare('SELECT user_id FROM user where user_name = ?');
+            $stmt->bind_param("s", $user_name);
+            $stmt->execute();
+            $stmt->bind_result($user_id);
+            $stmt->fetch();
+            return $user_id;
+        }
+
         /*
             The Read Operation
             Function is returning all the users from database
