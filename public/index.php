@@ -529,6 +529,29 @@ $app->post('/insertheartratedata', function(Request $request, Response $response
  * Parameters: user_id
  * method: POST
  */
+$app->post('/getuserdata', function(Request $request, Response $response){
+    if (!hasEmptyParams(array('user_name'), $request, $response)) {
+        $request_data = $request->getParsedBody();
+
+        $user_name = $request_data['user_name'];
+    
+        $db = new DbOperations; 
+        $user_data = $db->getUserData($user_name);
+        
+        $response_data = array();
+        $response_data['user_name'] = $user_name;
+        $response_data['user_data'] = $user_data;
+
+        $response->write(json_encode($response_data));
+
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(200);   
+    }    
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422); 
+});
 
 /**
  * endpoint: usersleepcheck

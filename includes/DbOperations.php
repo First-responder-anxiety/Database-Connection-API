@@ -246,6 +246,21 @@
             return $stmt->num_rows > 0;
         }
 
+        public function getUserData($username) {
+            $user_id = $this->getUserIdByUserName($username);
+
+            $stmt = $this->con->prepare('SELECT data_id FROM user_data WHERE user_id = ?');
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $stmt->bind_result($parent_id);
+            $data_ids = array();
+            while($stmt->fetch()){ 
+                $user = array(); 
+                array_push($data_ids, $parent_id);
+            }    
+            return $data_ids;
+        }
+
 
         /*
             The Read Operation
@@ -319,7 +334,7 @@
             }
         }
 
-/*
+        /*
             The Delete Operation
             This function will delete the user from database
         */
