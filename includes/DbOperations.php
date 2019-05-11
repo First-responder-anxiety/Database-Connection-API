@@ -40,7 +40,7 @@
         */
         public function userLogin($user_name, $password){
             if($this->doesUserNameExist($user_name)){
-                $hashed_password = $this->getPasswordByUserName($user_name); 
+                $hashed_password = $this->getPasswordByUserName($user_name);
                 if(password_verify($password, $hashed_password)){
                     return USER_AUTHENTICATED;
                 }else{
@@ -140,6 +140,22 @@
             $stmt->execute();
             $stmt->store_result();
             return $stmt->num_rows > 0;
+        }
+
+        public function insertData($user_name, $user_access_token, $fitness, $data_date) {
+            if ($this->doesUserNameExist($user_name)) {
+                $user_id = $this->getUserIdByUserName($user_name);
+
+                $stmt = $this->con->prepare('INSERT INTO `user_data`(`user_id`, `user_access_token`, `fittness_age`, `data_date`) 
+                                             VALUES (?, ?, ?, ?)');
+                $stmt->bind_param("isis", $user_id, $user_access_token, $fitness, $data_date);
+                if ($stmt->execute()) {
+                    return DATA_CREATED;
+                } else {
+                    return DATA_ERROR;
+                }
+            }
+            return USER_NOT_FOUND;
         }
 
         /*

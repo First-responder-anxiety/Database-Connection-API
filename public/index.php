@@ -274,9 +274,59 @@ $app->post('/insertshift', function(Request $request, Response $response){
 
 /**
  * endpoint: insertdata
- * Parameters: user_id, user_access_token, fittness_age, data_date
+ * Parameters: user_name, user_access_token, fittness_age, data_date
  * method: POST
  */
+$app->post('/insertdata', function(Request $request, Response $response){
+    if (!hasEmptyParams(array('user_name', 'user_access_token', 'fittness_age', "data_date"), $request, $response)) {
+        $request_data = $request->getParsedBody();
+
+        $user_name = $request_data['user_name'];
+        $user_access_token = $request_data['user_access_token'];
+        $fittness_age = $request_data['fittness_age'];
+        $data_date = $request_data['data_date'];
+
+        $db = new DbOperations; 
+        $result = $db->insertData($user_name, $user_access_token, $fittness_age, $data_date);
+        $response_data = array();
+        if ($result == DATA_CREATED) {
+            $response_data['error'] = false;
+            $response_data['message'] = "Data created";
+            $response_data['user_name'] = $user_name;
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
+
+        } else if ($result == DATA_ERROR) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Error creating the data";
+            $response_data['user_name'] = $user_name;
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+
+        } else if ($response == USER_NOT_FOUND) {
+            $response_data['error'] = true;
+            $response_data['message'] = "User name not found";
+            $response_data['user_name'] = $user_name;
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422); 
+});
 
 /**
  * endpoint: insertstressdata

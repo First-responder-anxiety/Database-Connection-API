@@ -19,3 +19,5 @@
     define('SHIFT_CREATED', 501);
     define('SHIFT_FAILURE', 502);
     define('SHIFT_PK_EXISTS', 503);
+    define('DATA_CREATED', 601);
+    define('DATA_ERROR', 602);
