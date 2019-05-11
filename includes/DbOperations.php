@@ -31,13 +31,6 @@
            return USER_EXISTS; 
         }
 
-
-        /* 
-            The Read Operation 
-            The function will check if we have the user in database
-            and the password matches with the given or not 
-            to authenticate the user accordingly    
-        */
         public function userLogin($user_name, $password){
             if($this->doesUserNameExist($user_name)){
                 $hashed_password = $this->getPasswordByUserName($user_name);
@@ -82,9 +75,6 @@
             return USER_NOT_FOUND;
         }
 
-        /**
-         * Assumption: The username exists
-         */
         private function getUserIdByUserName($user_name) {
             $stmt = $this->con->prepare('SELECT user_id FROM user where user_name = ?');
             $stmt->bind_param("s", $user_name);
@@ -283,40 +273,9 @@
         }
 
         /*
-            The Read Operation
-            This function reads a specified user from database
-        */
-        public function getUserByEmail($email){
-            $stmt = $this->con->prepare("SELECT id, email, name, school FROM users WHERE email = ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute(); 
-            $stmt->bind_result($id, $email, $name, $school);
-            $stmt->fetch(); 
-            $user = array(); 
-            $user['id'] = $id; 
-            $user['email']=$email; 
-            $user['name'] = $name; 
-            $user['school'] = $school; 
-            return $user; 
-        }
-
-
-        /*
-            The Update Operation
-            The function will update an existing user
-            from the database 
-        */
-        public function updateUser($email, $name, $school, $id){
-            $stmt = $this->con->prepare("UPDATE users SET email = ?, name = ?, school = ? WHERE id = ?");
-            $stmt->bind_param("sssi", $email, $name, $school, $id);
-            if($stmt->execute())
-                return true; 
-            return false; 
-        }
-
-        /*
             The Update Operation
             This function will update the password for a specified user
+            NOTE: OUTDATED FUNCTION. DO NOT USE UNTILL UPDATED
         */
         public function updatePassword($currentpassword, $newpassword, $email){
             $hashed_password = $this->getPasswordByUserName($email);
@@ -339,7 +298,7 @@
             This function will delete the user from database
         */
         public function deleteUser($id){
-            $stmt = $this->con->prepare("DELETE FROM users WHERE id = ?");
+            $stmt = $this->con->prepare("DELETE FROM user WHERE user_id = ?");
             $stmt->bind_param("i", $id);
             if($stmt->execute())
                 return true; 
