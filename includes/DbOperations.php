@@ -109,15 +109,38 @@
         }
 
         public function insertShift($parent_id, $start_time, $end_time, $date) {
-            if ($this->doesParentExist()) {
-
+            if ($this->doesParentExist($parent_id)) {
+                if (!$this->doesShiftPKExist($parent_id, $date)) {
+                    $stmt = $this->con->prepare('INSERT INTO `shift`(`parent_id`, `start_time`, `end_time`, `date`) 
+                                             VALUES (?, ?, ?, ?)');
+                    $stmt->bind_param("isss", $parent_id, $start_time, $end_time, $date);
+                    if ($stmt->execute()) {
+                        return SHIFT_CREATED;
+                    } else {
+                        return SHIFT_FAILURE;
+                    }
+                } else {
+                    return SHIFT_PK_EXISTS;
+                }
             }
+            return PARENT_NOT_EXISTS;
         }
 
-        // private function doesParentExist($parent_id) {
-        //     $stmt = $this->con->prepare('SELECT * FROM parent WHERE parent_id = ?')
-        //     $stmb->bind_param("i", $parent_id)
-        // }
+        private function doesParentExist($parent_id) {
+            $stmt = $this->con->prepare('SELECT * FROM parent WHERE parent_id = ?');
+            $stmt->bind_param("i", $parent_id);
+            $stmt->execute();
+            $stmt->store_result();
+            return $stmt->num_rows > 0;
+        }
+
+        private function doesShiftPKExist($parent_id, $date) {
+            $stmt = $this->con->prepare('SELECT * FROM SHIFT where parent_id = ? AND date = ?');
+            $stmt->bind_param("is", $parent_id, $date);
+            $stmt->execute();
+            $stmt->store_result();
+            return $stmt->num_rows > 0;
+        }
 
         /*
             The Read Operation

@@ -15,3 +15,7 @@
     define('PASSWORD_NOT_CHANGED', 303);
     define('PARENT_CREATED', 401);
     define('PARENT_FAILURE', 402);
+    define('PARENT_NOT_EXISTS', 403);
+    define('SHIFT_CREATED', 501);
+    define('SHIFT_FAILURE', 502);
+    define('SHIFT_PK_EXISTS', 503);

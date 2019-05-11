@@ -208,24 +208,69 @@ $app->post('/getuserparents', function (Request $request, Response $response){
  * Parameters: parent_id, start_time, end_time, date
  * method: POST
  */
-// $app->post('/insertshift', function(Request $request, Response $response){
-//     if (!$this->hasEmptyParams(array('parent_id', 'start_time', 'end_time', 'date'), $request, $response)) {
-//         $request_data = $request->getParsedBody();
+$app->post('/insertshift', function(Request $request, Response $response){
+    if (!hasEmptyParams(array('parent_id', 'start_time', 'end_time', 'date'), $request, $response)) {
+        $request_data = $request->getParsedBody();
 
-//         $parent_id = $request_data['parent_id'];
-//         $first_name = $request_data['start_time'];
-//         $last_name = $request_data['end_time'];
-//         $occupation = $request_data['occupation'];
+        $parent_id = $request_data['parent_id'];
+        $start_time = $request_data['start_time'];
+        $end_time = $request_data['end_time'];
+        $date = $request_data['date'];
 
-//         $db = new DbOperations; 
-//         $result = $db->insertParent($parent_id, $first_name, $last_name, $occupation);
+        $db = new DbOperations; 
+        $result = $db->insertShift($parent_id, $start_time, $end_time, $date);
 
-//         $response_data = array();
-//     }
-//     return $response
-//         ->withHeader('Content-type', 'application/json')
-//         ->withStatus(422); 
-// });
+        $response_data = array();
+        if ($result == SHIFT_CREATED) {
+            $response_data['error'] = false;
+            $response_data['message'] = 'Shift created';
+            $response_data['parent_id'] = $parent_id;
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
+            
+        } else if ($result == SHIFT_FAILURE) {
+            $response_data['error'] = true;
+            $request_data['message'] = "Error creating the shift";
+            $request_data['parent_id'] = $parent_id;
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+
+        } else if ($result == PARENT_NOT_EXISTS) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Parent does not exist";
+            $response_data['parent_id'] = $parent_id;
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+
+        } else if ($result == SHIFT_PK_EXISTS) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Shift primary key already exists";
+            $response_data['parent_id'] = $parent_id;
+            $response_data['date'] = $date;
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422); 
+});
 
 /**
  * endpoint: insertdata
