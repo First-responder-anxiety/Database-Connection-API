@@ -219,6 +219,33 @@
             return $stmt->num_rows > 0;
         }
 
+        public function insertHeartRateData($data_id, $average_heart_rate, $max_heart_rate, $min_heart_rate, $resting_heart_rate) {
+            if ($this->doesDataExist($data_id)) {
+                if (!$this->doesHeartRateDataExist($data_id)) {
+                    $stmt = $this->con
+                                 ->prepare('INSERT INTO `heart_rate_data`(`data_id`, `average_heart_rate`, `max_heart_rate`, `min_heart_rate`, `resting_heart_rate`) 
+                                            VALUES (?, ?, ?, ?, ?)');
+                    $stmt->bind_param("iiiii", $data_id, $average_heart_rate, $max_heart_rate, $min_heart_rate, $resting_heart_rate);
+                    if ($stmt->execute()) {
+                        return DATA_CREATED;
+                    } else {
+                        return DATA_ERROR;
+                    }
+                } else {
+                    return DATA_EXISTS;
+                }
+            }
+            return DATA_NOT_FOUND;
+        }
+
+        private function doesHeartRateDataExist($data_id) {
+            $stmt = $this->con->prepare('SELECT * FROM heart_rate_data where data_id = ?');
+            $stmt->bind_param("i", $data_id);
+            $stmt->execute();
+            $stmt->store_result();
+            return $stmt->num_rows > 0;
+        }
+
 
         /*
             The Read Operation

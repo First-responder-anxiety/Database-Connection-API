@@ -466,6 +466,63 @@ $app->post('/insertsleepdata', function(Request $request, Response $response){
  *  resting_heart_rate
  * method: POST
  */
+$app->post('/insertheartratedata', function(Request $request, Response $response){
+    if (!hasEmptyParams(array('data_id', 'average_heart_rate', 'max_heart_rate', 'min_heart_rate', 'resting_heart_rate'), $request, $response)) {
+        $request_data = $request->getParsedBody();
+
+        $data_id = $request_data['data_id'];
+        $average_heart_rate = $request_data['average_heart_rate'];
+        $max_heart_rate = $request_data['max_heart_rate'];
+        $min_heart_rate =  $request_data['min_heart_rate'];
+        $resting_heart_rate = $request_data['resting_heart_rate'];
+    
+        $db = new DbOperations; 
+        $result = $db->insertHeartRateData($data_id, $average_heart_rate, $max_heart_rate, $min_heart_rate, $resting_heart_rate);
+        
+        $response_data = array();
+        $response_data['data_id'] = $data_id;
+        if ($result == DATA_CREATED) {
+            $response_data['error'] = false;
+            $response_data['message'] = "Heart rate data added sucessfully";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
+        } else if ($result == DATA_ERROR) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Error adding heart rate data";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        } else if ($result == DATA_NOT_FOUND) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Parent Data not found";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        } else if ($result == DATA_EXISTS) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Cannot submit more then one heart rate data instance for one user_data instance";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
 
 /**
  * endpoint: getuserdata
