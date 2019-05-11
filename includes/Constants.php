@@ -22,3 +22,4 @@
     define('DATA_CREATED', 601);
     define('DATA_ERROR', 602);
     define('DATA_NOT_FOUND', 603);
+    define('DATA_EXISTS', 604);

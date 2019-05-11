@@ -380,6 +380,15 @@ $app->post('/insertstressdata', function(Request $request, Response $response){
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(422);
+        } else if ($result == DATA_EXISTS) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Cannot submit more then one stress data instance for one user_data instance";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
         }
     }
     return $response

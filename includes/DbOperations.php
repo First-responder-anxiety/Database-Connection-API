@@ -161,13 +161,17 @@
         public function insertStressData($data_id, $duration, $average_stress_level, $max_stress_level, 
         $high_stress_duration, $medium_stress_duration, $low_stress_duration) {
             if ($this->doesDataExist($data_id)) {
-                $stmt = $this->con->prepare('INSERT INTO `stress_data`(`data_id`, `duration`, `average_stress_level`, `max_stress_level`, `high_stress_duration`, `medium_stress_duration`, `low_stress_duration`) 
-                                             VALUES (?, ?, ?, ?, ?, ?, ?)');
-                $stmt->bind_param("iiiiiii", $data_id, $duration, $average_stress_level, $max_stress_level, $high_stress_duration, $medium_stress_duration, $low_stress_duration);
-                if ($stmt->execute()) {
-                    return DATA_CREATED;
+                if (!$this->doesStressDataExist($data_id)) {
+                    $stmt = $this->con->prepare('INSERT INTO `stress_data`(`data_id`, `duration`, `average_stress_level`, `max_stress_level`, `high_stress_duration`, `medium_stress_duration`, `low_stress_duration`) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)');
+                    $stmt->bind_param("iiiiiii", $data_id, $duration, $average_stress_level, $max_stress_level, $high_stress_duration, $medium_stress_duration, $low_stress_duration);
+                    if ($stmt->execute()) {
+                        return DATA_CREATED;
+                    } else {
+                        return DATA_ERROR;
+                    }
                 } else {
-                    return DATA_ERROR;
+                    return DATA_EXISTS;
                 }
             }
             return DATA_NOT_FOUND;
@@ -175,6 +179,14 @@
 
         private function doesDataExist($data_id) {
             $stmt = $this->con->prepare('SELECT * FROM user_data where data_id = ?');
+            $stmt->bind_param("i", $data_id);
+            $stmt->execute();
+            $stmt->store_result();
+            return $stmt->num_rows > 0;
+        }
+
+        private function doesStressDataExist($data_id) {
+            $stmt = $this->con->prepare('SELECT * FROM stress_data where data_id = ?');
             $stmt->bind_param("i", $data_id);
             $stmt->execute();
             $stmt->store_result();
