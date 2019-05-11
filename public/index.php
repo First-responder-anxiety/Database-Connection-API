@@ -169,8 +169,38 @@ $app->post('/insertparent', function(Request $request, Response $response){
         }
     }
     return $response
-    ->withHeader('Content-type', 'application/json')
-    ->withStatus(422); 
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422); 
+});
+
+/**
+ * endpoint: getuserparents
+ * Parameters: user_name
+ * method: POST
+ */
+$app->post('/getuserparents', function (Request $request, Response $response){
+    if (!hasEmptyParams(array('user_name'), $request, $response)) {
+        $request_data = $request->getParsedBody();
+
+        $user_name = $request_data['user_name'];
+
+        $db = new DbOperations; 
+        $parent_ids = $db->getUserParents($user_name);
+
+        $response_data = array();
+        $response_data['error'] = false;
+        $response_data['message'] = 'Parent ID\'s fetched';
+        $response_data['parent_id'] = $parent_ids;
+
+        $response->write(json_encode($response_data));
+
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(200);
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422); 
 });
 
 /**
@@ -178,6 +208,24 @@ $app->post('/insertparent', function(Request $request, Response $response){
  * Parameters: parent_id, start_time, end_time, date
  * method: POST
  */
+// $app->post('/insertshift', function(Request $request, Response $response){
+//     if (!$this->hasEmptyParams(array('parent_id', 'start_time', 'end_time', 'date'), $request, $response)) {
+//         $request_data = $request->getParsedBody();
+
+//         $parent_id = $request_data['parent_id'];
+//         $first_name = $request_data['start_time'];
+//         $last_name = $request_data['end_time'];
+//         $occupation = $request_data['occupation'];
+
+//         $db = new DbOperations; 
+//         $result = $db->insertParent($parent_id, $first_name, $last_name, $occupation);
+
+//         $response_data = array();
+//     }
+//     return $response
+//         ->withHeader('Content-type', 'application/json')
+//         ->withStatus(422); 
+// });
 
 /**
  * endpoint: insertdata

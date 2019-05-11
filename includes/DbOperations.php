@@ -94,6 +94,31 @@
             return $user_id;
         }
 
+        public function getUserParents($user_name) {
+            $user_id = $this->getUserIdByUserName($user_name);
+            $stmt = $this->con->prepare('SELECT parent_id FROM parent WHERE user_id = ?');
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $stmt->bind_result($parent_id);
+            $parent_ids = array();
+            while($stmt->fetch()){ 
+                $user = array(); 
+                array_push($parent_ids, $parent_id);
+            }    
+            return $parent_ids;
+        }
+
+        public function insertShift($parent_id, $start_time, $end_time, $date) {
+            if ($this->doesParentExist()) {
+
+            }
+        }
+
+        // private function doesParentExist($parent_id) {
+        //     $stmt = $this->con->prepare('SELECT * FROM parent WHERE parent_id = ?')
+        //     $stmb->bind_param("i", $parent_id)
+        // }
+
         /*
             The Read Operation
             Function is returning all the users from database
