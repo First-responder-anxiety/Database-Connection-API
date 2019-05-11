@@ -21,3 +21,4 @@
     define('SHIFT_PK_EXISTS', 503);
     define('DATA_CREATED', 601);
     define('DATA_ERROR', 602);
+    define('DATA_NOT_FOUND', 603);

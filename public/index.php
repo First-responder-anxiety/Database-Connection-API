@@ -334,6 +334,58 @@ $app->post('/insertdata', function(Request $request, Response $response){
  *  high_stress_duration, medium_stress_duration, low_stress_duration
  * method: POST
  */
+$app->post('/insertstressdata', function(Request $request, Response $response){
+    if (!hasEmptyParams(array('data_id', 'duration', 'average_stress_level', 'max_stress_level', 
+        'high_stress_duration', 'medium_stress_duration', 'low_stress_duration'), $request, $response)) {
+        $request_data = $request->getParsedBody();
+
+        $data_id = $request_data['data_id'];
+        $duration = $request_data['duration'];
+        $average_stress_level = $request_data['average_stress_level'];
+        $max_stress_level=  $request_data['max_stress_level'];
+        $high_stress_duration = $request_data['high_stress_duration'];
+        $medium_stress_duration = $request_data['medium_stress_duration'];
+        $low_stress_duration = $request_data['low_stress_duration'];
+    
+        $db = new DbOperations; 
+        $result = $db->insertStressData($data_id, $duration, $average_stress_level, $max_stress_level, 
+                                        $high_stress_duration, $medium_stress_duration, $low_stress_duration);
+        
+        $response_data = array();
+        $response_data['data_id'] = $data_id;
+        if ($result == DATA_CREATED) {
+            $response_data['error'] = false;
+            $response_data['message'] = "Stress data added sucessfully";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
+        } else if ($result == DATA_ERROR) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Error adding stress data";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        } else if ($result == DATA_NOT_FOUND) {
+            $response_data['error'] = true;
+            $response_data['message'] = "Parent Data not found";
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
 
 /**
  * endpoint: insertsleepdata
