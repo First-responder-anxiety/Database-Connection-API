@@ -8,8 +8,6 @@
         //the database connection variable
         private $con; 
 
-        //inside constructor
-        //we are getting the connection link
         function __construct(){
             require_once dirname(__FILE__) . '/DbConnect.php';
             $db = new DbConnect; 
@@ -40,15 +38,15 @@
             and the password matches with the given or not 
             to authenticate the user accordingly    
         */
-        public function userLogin($email, $password){
-            if($this->isEmailExist($email)){
-                $hashed_password = $this->getUsersPasswordByEmail($email); 
+        public function userLogin($user_name, $password){
+            if($this->doesUserNameExist($user_name)){
+                $hashed_password = $this->getPasswordByUserName($user_name); 
                 if(password_verify($password, $hashed_password)){
                     return USER_AUTHENTICATED;
                 }else{
                     return USER_PASSWORD_DO_NOT_MATCH; 
                 }
-            }else{
+            } else {
                 return USER_NOT_FOUND; 
             }
         }
@@ -57,9 +55,9 @@
             The method is returning the password of a given user
             to verify the given password is correct or not
         */
-        private function getUsersPasswordByEmail($email){
-            $stmt = $this->con->prepare("SELECT password FROM users WHERE email = ?");
-            $stmt->bind_param("s", $email);
+        private function getPasswordByUserName($user_name){
+            $stmt = $this->con->prepare("SELECT password FROM user WHERE user_name = ?");
+            $stmt->bind_param("s", $user_name);
             $stmt->execute(); 
             $stmt->bind_result($password);
             $stmt->fetch(); 
@@ -72,7 +70,7 @@
         */
         public function getAllUsers(){
             $stmt = $this->con->prepare("SELECT id, email, name, school FROM users;");
-            $stmt->execute(); 
+            $stmt->execute; 
             $stmt->bind_result($id, $email, $name, $school);
             $users = array(); 
             while($stmt->fetch()){ 
@@ -123,7 +121,7 @@
             This function will update the password for a specified user
         */
         public function updatePassword($currentpassword, $newpassword, $email){
-            $hashed_password = $this->getUsersPasswordByEmail($email);
+            $hashed_password = $this->getPasswordByUserName($email);
             
             if(password_verify($currentpassword, $hashed_password)){
                 
@@ -138,7 +136,7 @@
             }
         }
 
-        /*
+/*
             The Delete Operation
             This function will delete the user from database
         */
@@ -150,11 +148,11 @@
             return false; 
         }
 
-        /*
-            The function is checking if the user exists in the database (or not)
-        */
+        /**
+         * Check if the username is already taken
+         */
         private function doesUserNameExist($user_name){
-            $stmt = $this->con->prepare("SELECT user_id FROM user WHERE user_name = ?");
+            $stmt = $this->con->prepare("SELECT * FROM user WHERE user_name = ?");
             $stmt->bind_param("s", $user_name);
             $stmt->execute();
             $stmt->store_result();

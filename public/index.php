@@ -71,6 +71,52 @@ $app->post('/usersignup', function(Request $request, Response $response) {
  * Parameters: user_name, password
  * method: POST
  */
+$app->post('/userlogin', function(Request $request, Response $response) {
+    if (!hasEmptyParams(array('user_name', 'password'), $request, $response)) {
+        $request_data = $request->getParsedBody(); 
+
+        $user_name = $request_data['user_name'];
+        $password = $request_data['password'];
+        
+        $db = new DbOperations; 
+        $result = $db->userLogin($user_name, $password);
+        if($result == USER_AUTHENTICATED){
+
+            $response_data = array();
+            $response_data['error']=false; 
+            $response_data['message'] = 'Login Successful';
+            $response_data['user']=$user_name; 
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);   
+
+        } else if ($result == USER_NOT_FOUND) {
+            $response_data = array();
+            $response_data['error']=true; 
+            $response_data['message'] = 'User does not exist';
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);    
+
+        } else if ($result == USER_PASSWORD_DO_NOT_MATCH) {
+            $response_data = array();
+            $response_data['error']=true; 
+            $response_data['message'] = 'Invalid credentials';
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);  
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);    
+});
 
 /**
  * endpoint: insertparent
@@ -134,60 +180,6 @@ $app->post('/usersignup', function(Request $request, Response $response) {
  * Parameters: data_id (multiple)
  * method: POST
  */
-
-/**
- * endpoint: userlogin
- * Parameters: user_name, password
- * method: POST
- */
-$app->post('/userlogin', function(Request $request, Response $response) {
-    if (!hasEmptyParams(array('user_name', 'password'), $request, $response)) {
-        $request_data = $request->getParsedBody(); 
-
-        $user_name = $request_data['user_name'];
-        $password = $request_data['password'];
-        
-        $db = new DbOperations; 
-        $result = $db->userLogin($user_name, $password);
-        if($result == USER_AUTHENTICATED){
-            
-            $user = $db->getUserByuser_name($user_name);
-
-            $response_data = array();
-            $response_data['error']=false; 
-            $response_data['message'] = 'Login Successful';
-            $response_data['user']=$user; 
-            $response->write(json_encode($response_data));
-
-            return $response
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);   
-
-        } else if ($result == USER_NOT_FOUND) {
-            $response_data = array();
-            $response_data['error']=true; 
-            $response_data['message'] = 'User not exist';
-            $response->write(json_encode($response_data));
-
-            return $response
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);    
-
-        } else if ($result == USER_PASSWORD_DO_NOT_MATCH) {
-            $response_data = array();
-            $response_data['error']=true; 
-            $response_data['message'] = 'Invalid credential';
-            $response->write(json_encode($response_data));
-
-            return $response
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);  
-        }
-    }
-    return $response
-        ->withHeader('Content-type', 'application/json')
-        ->withStatus(422);    
-});
 
 /**
  * endpoint: allusers
